@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
 
 ### custom lib
-from networks.resample2d_package.modules.resample2d import Resample2d
+from networks.resample2d_package.resample2d import Resample2d
 import networks
 import datasets
 import utils
