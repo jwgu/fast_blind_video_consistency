@@ -15,8 +15,13 @@ class TransformNet(nn.Module):
         nf = opts.nf
         use_bias = (opts.norm == "IN")
         
+        self.nc_in = nc_in
+        self.nc_out = nc_out
+
+        nc = nc_in/2-3 # nc of P_t and O_t
+
         ## convolution layers
-        self.conv1a = ConvLayer(3 + 3, nf * 1, kernel_size=7, stride=1, bias=use_bias, norm=opts.norm) ## input: P_t, O_t-1
+        self.conv1a = ConvLayer(nc + nc, nf * 1, kernel_size=7, stride=1, bias=use_bias, norm=opts.norm) ## input: P_t, O_t-1
         self.conv1b = ConvLayer(3 + 3, nf * 1, kernel_size=7, stride=1, bias=use_bias, norm=opts.norm) ## input: I_t, I_t-1
         self.conv2a = ConvLayer(nf * 1, nf * 2, kernel_size=3, stride=2, bias=use_bias, norm=opts.norm)
         self.conv2b = ConvLayer(nf * 1, nf * 2, kernel_size=3, stride=2, bias=use_bias, norm=opts.norm)
@@ -42,8 +47,9 @@ class TransformNet(nn.Module):
 
     def forward(self, X, prev_state):
         
-        Xa = X[:,:6,:,:] ## P_t, O_t-1
-        Xb = X[:,6:,:,:] ## I_t, I_t-1
+        nc = self.nc_in-6 # nc of P_t and O_t
+        Xa = X[:,:nc,:,:] ## P_t, O_t-1
+        Xb = X[:,nc:,:,:] ## I_t, I_t-1
 
         E1a = self.relu(self.conv1a(Xa))
         E1b = self.relu(self.conv1b(Xb))

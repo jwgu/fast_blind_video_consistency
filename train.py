@@ -30,6 +30,8 @@ if __name__ == "__main__":
     ### model options
     parser.add_argument('-model',           type=str,     default="TransformNet",   help='TransformNet') 
     parser.add_argument('-nf',              type=int,     default=32,               help='#Channels in conv layer')
+    parser.add_argument('-nc_in',           type=int,     default=12,               help='#Channels in inputs')
+    parser.add_argument('-nc_out',          type=int,     default=3,                help='#Channels in outputs')
     parser.add_argument('-blocks',          type=int,     default=5,                help='#ResBlocks') 
     parser.add_argument('-norm',            type=str,     default='IN',             choices=["BN", "IN", "none"],   help='normalization layer')
     parser.add_argument('-model_name',      type=str,     default='none',           help='path to save model')
@@ -134,7 +136,7 @@ if __name__ == "__main__":
     
     ### initialize model
     print('===> Initializing model from %s...' %opts.model)
-    model = networks.__dict__[opts.model](opts, nc_in=12, nc_out=3)
+    model = networks.__dict__[opts.model](opts, nc_in=opts.nc_in, nc_out=opts.nc_out)
 
 
     ### initialize optimizer
@@ -213,7 +215,10 @@ if __name__ == "__main__":
 
     
     ### create dataset
-    train_dataset = datasets.MultiFramesDataset(opts, "train")
+    if opts.datasets_tasks=='scannet': #Jinwei 
+        train_dataset = datasets.MultiFramesDatasetScanNetDepth(opts, "train")
+    else:
+        train_dataset = datasets.MultiFramesDataset(opts, "train")
 
     
     ### start training
@@ -290,7 +295,7 @@ if __name__ == "__main__":
 
                 ### model input        
                 inputs = torch.cat((frame_p2, frame_o1, frame_i2, frame_i1), dim=1)
-                
+
                 ### forward model
                 output, lstm_state = model(inputs, lstm_state)
 

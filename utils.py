@@ -230,6 +230,21 @@ def read_img(filename, grayscale=0):
 
     return img
 
+
+# read 16bit pgm depth image (normalized to [0,1])
+def read_depth_img(filename, scale=1000.):
+    img = cv2.imread(filename, -1) 
+
+    if img is None:
+        raise Exception("Image %s does not exist" %filename)
+
+    img = np.expand_dims(img, axis=2)
+            
+    img = np.float32(img) / scale
+
+    return img
+
+
 def save_img(img, filename):
 
     print("Save %s" %filename)
